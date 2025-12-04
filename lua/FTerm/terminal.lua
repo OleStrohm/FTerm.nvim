@@ -143,7 +143,8 @@ end
 ---@return Term
 function Term:open_term()
     -- NOTE: `termopen` will fails if the current buffer is modified
-    self.terminal = fn.termopen(U.is_cmd(self.config.cmd), {
+    self.terminal = fn.jobstart(U.is_cmd(self.config.cmd), {
+        term = true,
         clear_env = self.config.clear_env,
         env = self.config.env,
         on_stdout = self.config.on_stdout,
@@ -154,7 +155,7 @@ function Term:open_term()
     })
 
     -- This prevents the filetype being changed to `term` instead of `FTerm` when closing the floating window
-    A.nvim_buf_set_option(self.buf, 'filetype', self.config.ft)
+    A.nvim_set_option_value('filetype', self.config.ft, { buf = self.buf })
 
     return self:prompt()
 end
@@ -190,7 +191,7 @@ function Term:close(force)
         return self
     end
 
-    A.nvim_win_close(self.win, {})
+    A.nvim_win_close(self.win, true)
 
     self.win = nil
 
